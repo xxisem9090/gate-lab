@@ -1,0 +1,29 @@
+name: lab-agent-approve
+
+# Lab simulation: makes github-actions[bot] submit an APPROVED review.
+# This is the exact signal agent_approval_check detects (module lines
+# 914-928: "an agent has submitted an APPROVED review"). No Anthropic API
+# is involved -- GITHUB_TOKEN posts the review, the identity is real.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to approve"
+        required: true
+        type: string
+
+permissions:
+  pull-requests: write
+
+jobs:
+  agent-approve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit APPROVED review as github-actions[bot]
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr review "${{ inputs.pr }}" --repo "$GITHUB_REPOSITORY" \
+            --approve \
+            --body "Lab: simulated agent APPROVED review (agent-approval-check signal)"
